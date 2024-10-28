@@ -6,12 +6,11 @@ const mime = require('mime-types')
 
 
 const s3Client = new S3Client({
-    region: 'ap-south-1',
+    region: process.env.AWS_REGION,
     credentials: {
-        accessKeyId:'AKIAQR5EPL6JH7PPPBAC',
-        secretAccessKey:'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'
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     }
-   
 })
 
 const PROJECT_ID = process.env.PROJECT_ID

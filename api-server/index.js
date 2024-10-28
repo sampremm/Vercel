@@ -1,22 +1,23 @@
+require('dotenv').config();
 const express = require('express');
 const { generateSlug } = require('random-word-slugs');
 const { ECSClient, RunTaskCommand } = require('@aws-sdk/client-ecs');
 
 const app = express();
-const PORT = 9000;
+const PORT = process.env.PORT || 9000;
 app.use(express.json());
 
 const ecsClient = new ECSClient({
-    region:'ap-south-1',
+    region: process.env.AWS_REGION,
     credentials: {
-        accessKeyId:'AKIAQR5EPL6JH7PPPBAC',
-        secretAccessKey:'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'
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     }
 });
 
 const config = {
-    CLUSTER: 'arn:aws:ecs:ap-south-1:038462775186:cluster/builder-cluster',
-    TASK: 'arn:aws:ecs:ap-south-1:038462775186:task-definition/builder-task-1'
+    CLUSTER: process.env.ECS_CLUSTER_ARN,
+    TASK: process.env.ECS_TASK_ARN
 };
 
 app.post('/project', async (req, res) => {
@@ -31,14 +32,14 @@ app.post('/project', async (req, res) => {
         networkConfiguration: {
             awsvpcConfiguration: {
                 assignPublicIp: 'ENABLED',
-                subnets: ['subnet-0317809186cd3798c', 'subnet-0c5334a79b72e0e68', 'subnet-02fe62235fdadcf71'],
-                securityGroups: ['sg-034c5da0521157cf7']
+                subnets: process.env.SUBNET_IDS.split(','),
+                securityGroups: [process.env.SECURITY_GROUP_ID]
             }
         },
-        overrides:{
+        overrides: {
             containerOverrides: [
                 {
-                    name:'builder-img', 
+                    name: 'builder-img', 
                     environment: [
                         { name: 'GIT_REPOSITORY__URL', value: gitURL }, 
                         { name: 'PROJECT_ID', value: projectSlug }
@@ -56,7 +57,5 @@ app.post('/project', async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Failed to queue the project.' });
     }
 });
-
-
 
 app.listen(PORT, () => console.log(`API Server Running on port ${PORT}`));
