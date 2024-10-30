@@ -39,7 +39,7 @@ app.post('/project', async (req, res) => {
         overrides: {
             containerOverrides: [
                 {
-                    name: 'builder-img', 
+                    name:'builder-img', 
                     environment: [
                         { name: 'GIT_REPOSITORY__URL', value: gitURL }, 
                         { name: 'PROJECT_ID', value: projectSlug }
@@ -52,7 +52,7 @@ app.post('/project', async (req, res) => {
     try {
         await ecsClient.send(command);
         res.json({ status: 'queued', data: { projectSlug, url: `http://${projectSlug}.localhost:8000` } });
-    } catch (error) {
+    } catch (error){
         console.error('Error launching task:', error);
         res.status(500).json({ status: 'error', message: 'Failed to queue the project.' });
     }
